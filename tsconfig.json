@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "outDir": "production",
+      "allowJs": false,
+      "target": "es6",
+      "moduleResolution": "Node",
+      "resolveJsonModule": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strictPropertyInitialization": true,
+      "strictFunctionTypes": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+    },
+    "include": ["./src/**/*"]
+  }

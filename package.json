@@ -1,0 +1,21 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "WhatsApp bot for taxi zaisan",
+  "main": "production/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ."
+  },
+  "author": "Rustem",
+  "license": "ISC",
+  "dependencies": {
+    "@green-api/whatsapp-bot": "^0.2.5",
+    "@types/mysql": "^2.15.26",
+    "@types/node": "^20.14.10",
+    "dotenv": "^16.4.5",
+    "mysql": "^2.18.1",
+    "typescript": "^5.5.3"
+  }
+}
