@@ -7,19 +7,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import "dotenv/config";
-export function sendMessage(message) {
+import { promisify } from "util";
+export function get(connection, user_id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const url = 'https://7103.api.greenapi.com/waInstance7103941322/sendMessage/c7bdcaa7cd2447798f396eede68a7b40b81bdd505c96410c85';
-        yield fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'chatId': '120363301897094419@g.us',
-                'message': message
-            })
-        }).then(e => e.text()).then(e => console.log(e));
+        try {
+            const query = promisify(connection.query).bind(connection);
+            const rows = yield query("SELECT * FROM `orders` WHERE user_id = ?", [user_id]);
+            console.log('Order get rows', rows[0]);
+            return rows[0];
+        }
+        catch (err) {
+            throw err;
+        }
     });
 }

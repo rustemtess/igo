@@ -42,7 +42,8 @@ export function deleteFromDB(connection, deleteOptions) {
             const setClause = deleteOptions.keys.map(key => `${key} = ?`).join(' AND ');
             const sql = `DELETE FROM ${deleteOptions.table} WHERE ${setClause}`;
             const query = promisify(connection.connection.query).bind(connection.connection);
-            yield query(sql, deleteOptions.values);
+            const result = yield query(sql, deleteOptions.values);
+            return (yield result.affectedRows) > 0;
         }
         catch (err) {
             throw err;

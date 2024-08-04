@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { deleteFromDB, insert, update } from "../../services/SqlService.js";
 import { cleanPhoneNumber, isValidNumber } from "../../module.js";
 import { DriverDelete } from "./DriverModule.js";
-import { readFileSync } from "fs";
 import { get } from "../../services/DriverService.js";
+import { pasteText } from "../../module.js";
 class DriverRegisterHandler {
     constructor() {
         this.permissionCommand = 'driver_register';
@@ -27,6 +27,7 @@ class DriverRegisterHandler {
                 translateReply: 'Есіміңізді еңгізіңіз'
             }
         ];
+        this.pathMessages = 'handlers/Driver/DriverMessages.json';
     }
     nextStep(step) {
         if (this.connection)
@@ -35,37 +36,6 @@ class DriverRegisterHandler {
                 keys: ['user_driver_step'],
                 values: [step]
             });
-    }
-    pasteText(lang, n, arg) {
-        const DriverMessage = JSON.parse(readFileSync('./src/handlers/Driver/DriverMessages.json', 'utf-8'));
-        console.log('DriverMessage:', DriverMessage);
-        console.log('lang:', lang, 'n:', n);
-        let obj;
-        if (lang === 'kz') {
-            if (!DriverMessage.kz || !DriverMessage.kz[n]) {
-                console.error('Invalid index or missing language key for kz');
-                return '';
-            }
-            obj = DriverMessage.kz[n].toString();
-        }
-        else {
-            if (!DriverMessage.ru || !DriverMessage.ru[n]) {
-                console.error('Invalid index or missing language key for ru');
-                return '';
-            }
-            obj = DriverMessage.ru[n].toString();
-        }
-        console.log('Initial obj:', obj);
-        if (!arg)
-            return obj;
-        for (const [alias, text] of arg) {
-            if (alias === undefined || text === undefined) {
-                console.error('Undefined alias or text in argument array', arg);
-                continue;
-            }
-            obj = obj.replace(alias.toString(), text.toString());
-        }
-        return obj;
     }
     execute(event, command, lang, connection, data) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -97,18 +67,18 @@ class DriverRegisterHandler {
                 connection && lang) {
                 const number = cleanPhoneNumber(event.chat.id.toString());
                 this.connection = connection;
-                if (command === this.pasteText(lang, 0).toLowerCase()) {
+                if (command === pasteText(this.pathMessages, lang, 0).toLowerCase()) {
                     const DriverData = yield get(connection.connection, data.user_id);
-                    yield event.reply(this.pasteText(lang, 12, [
+                    yield event.reply(pasteText(this.pathMessages, lang, 12, [
                         ['{driver_id}', DriverData.driver_id]
                     ]));
                     DriverDelete(connection, data.user_id);
                     this.nextStep(0);
-                    return false;
+                    return true;
                 }
                 switch (data.user_driver_step) {
                     case 1:
-                        event.reply(this.pasteText(lang, 1));
+                        event.reply(pasteText(this.pathMessages, lang, 1));
                         update(connection, {
                             table: 'drivers',
                             keys: ['driver_name'],
@@ -117,7 +87,7 @@ class DriverRegisterHandler {
                         this.nextStep(2);
                         break;
                     case 2:
-                        event.reply(this.pasteText(lang, 2, [[
+                        event.reply(pasteText(this.pathMessages, lang, 2, [[
                                 '{number}', number
                             ]]));
                         update(connection, {
@@ -128,8 +98,8 @@ class DriverRegisterHandler {
                         this.nextStep(3);
                         break;
                     case 3:
-                        if (command === this.pasteText(lang, 6).toLowerCase()) {
-                            event.reply(this.pasteText(lang, 3, [[
+                        if (command === pasteText(this.pathMessages, lang, 6).toLowerCase()) {
+                            event.reply(pasteText(this.pathMessages, lang, 3, [[
                                     '{number}', number
                                 ]]));
                             update(connection, {
@@ -140,7 +110,7 @@ class DriverRegisterHandler {
                             this.nextStep(4);
                         }
                         else if (isValidNumber(command)) {
-                            event.reply(this.pasteText(lang, 3, [[
+                            event.reply(pasteText(this.pathMessages, lang, 3, [[
                                     '{number}', number
                                 ]]));
                             update(connection, {
@@ -151,11 +121,11 @@ class DriverRegisterHandler {
                             this.nextStep(4);
                         }
                         else
-                            event.reply(this.pasteText(lang, 7));
+                            event.reply(pasteText(this.pathMessages, lang, 7));
                         break;
                     case 4:
-                        if (command === this.pasteText(lang, 6).toLowerCase()) {
-                            event.reply(this.pasteText(lang, 4));
+                        if (command === pasteText(this.pathMessages, lang, 6).toLowerCase()) {
+                            event.reply(pasteText(this.pathMessages, lang, 4));
                             update(connection, {
                                 table: 'drivers',
                                 keys: ['driver_kaspi_number'],
@@ -164,7 +134,7 @@ class DriverRegisterHandler {
                             this.nextStep(5);
                         }
                         else if (isValidNumber(command)) {
-                            event.reply(this.pasteText(lang, 4));
+                            event.reply(pasteText(this.pathMessages, lang, 4));
                             update(connection, {
                                 table: 'drivers',
                                 keys: ['driver_kaspi_number'],
@@ -173,10 +143,10 @@ class DriverRegisterHandler {
                             this.nextStep(5);
                         }
                         else
-                            event.reply(this.pasteText(lang, 7));
+                            event.reply(pasteText(this.pathMessages, lang, 7));
                         break;
                     case 5:
-                        event.reply(this.pasteText(lang, 5));
+                        event.reply(pasteText(this.pathMessages, lang, 5));
                         update(connection, {
                             table: 'drivers',
                             keys: ['driver_car_model'],
@@ -191,7 +161,7 @@ class DriverRegisterHandler {
                             values: [event.message.text]
                         });
                         const DriverData = yield get(connection.connection, data.user_id);
-                        yield event.reply(this.pasteText(lang, 8, [
+                        yield event.reply(pasteText(this.pathMessages, lang, 8, [
                             ['{name}', DriverData.driver_name],
                             ['{lastname}', DriverData.driver_lastname],
                             ['{phone_number}', DriverData.driver_phone_number],
@@ -202,8 +172,8 @@ class DriverRegisterHandler {
                         this.nextStep(7);
                         break;
                     case 7:
-                        if (command === this.pasteText(lang, 9).toLowerCase()) {
-                            event.reply(this.pasteText(lang, 11));
+                        if (command === pasteText(this.pathMessages, lang, 9).toLowerCase()) {
+                            event.reply(pasteText(this.pathMessages, lang, 11));
                             update(connection, {
                                 table: 'drivers',
                                 keys: ['driver_confirm'],
@@ -211,7 +181,7 @@ class DriverRegisterHandler {
                             });
                         }
                         else {
-                            event.reply(this.pasteText(lang, 10));
+                            event.reply(pasteText(this.pathMessages, lang, 10));
                         }
                         break;
                 }

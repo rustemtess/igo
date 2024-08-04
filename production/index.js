@@ -17,6 +17,8 @@ import LanguageSelectionHandler from "./handlers/LanguageSelectionHandler.js";
 import MenuHandler from "./handlers/MenuHandler.js";
 import LanguageSelectionOptionsHandler from "./handlers/LanguageSelectionOptionsHandler.js";
 import DriverRegisterHandler from "./handlers/Driver/DriverRegisterHandler.js";
+import OrderRegisterHandler from "./handlers/Order/OrderRegisterHandler.js";
+import DriverApplyHandler from "./handlers/Driver/DriverApplyHandler.js";
 // Создаем ватсап бота и передаем токены
 const bot = new WhatsAppBot({
     idInstance: (_a = process.env.ID_INSTANCE) !== null && _a !== void 0 ? _a : '',
@@ -33,18 +35,25 @@ bot.on('message', (event) => __awaiter(void 0, void 0, void 0, function* () {
             // Выполняем запрос к базе данных для получения информации о пользователе
             const data = yield get(connection, number);
             if (data && data.user_id) {
-                const handlers = [
-                    new LanguageSelectionHandler(),
-                    new LanguageSelectionOptionsHandler(),
-                    new MenuHandler(),
-                    new DriverRegisterHandler()
-                ];
-                for (const handler of handlers) {
-                    if (yield handler.execute(event, command, data.user_lang, {
-                        connection: connection,
-                        user_id: data.user_id
-                    }, data)) {
-                        return;
+                if (data.user_id === 11) {
+                    console.log(123);
+                }
+                else {
+                    const handlers = [
+                        new LanguageSelectionHandler(),
+                        new LanguageSelectionOptionsHandler(),
+                        new MenuHandler(),
+                        new DriverRegisterHandler(),
+                        new DriverApplyHandler(),
+                        new OrderRegisterHandler(),
+                    ];
+                    for (const handler of handlers) {
+                        if (yield handler.execute(event, command, data.user_lang, {
+                            connection: connection,
+                            user_id: data.user_id
+                        }, data)) {
+                            return;
+                        }
                     }
                 }
             }
